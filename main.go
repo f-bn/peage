@@ -40,6 +40,15 @@ func init() {
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose logging of requests")
 }
 
+func checkDockerSocketPath() error {
+	if _, err := os.Stat(socketPath); err != nil {
+		logger.Error("Docker API UNIX socket not found, is Docker running?", "error", err)
+		return err
+	}
+	logger.Info("Docker API UNIX socket found", "path", socketPath)
+	return nil
+}
+
 func isAllowedPath(path string) bool {
 	versionPattern := `^/v\d+\.\d+`
 	if match, _ := regexp.MatchString(versionPattern, path); match {
@@ -107,11 +116,9 @@ func main() {
 	}))
 
 	// Preflight checks
-	if _, err := os.Stat(socketPath); err != nil {
-		logger.Error("Docker API UNIX socket not found, is Docker running?", "error", err)
+	if err := checkDockerSocketPath(); err != nil {
 		os.Exit(1)
 	}
-	logger.Info("Docker API UNIX socket found", "path", socketPath)
 
 	// Create the reverse proxy
 	proxy := NewDockerProxy()
