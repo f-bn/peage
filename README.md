@@ -1,5 +1,7 @@
 # Overview
 
+:warning: **This is an early work and my first Go project, issues can arise** :warning:
+
 Peage is a small program written in Go that filters calls to the Docker API when the UNIX socket is used.
 
 The goal of this software is to remain as simple as possible by not covering all possible use cases for a filtering reverse proxy (prefer alternatives if needed).
