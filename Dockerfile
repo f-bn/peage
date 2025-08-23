@@ -18,7 +18,7 @@ EXPOSE 2375/tcp
 LABEL \
   org.opencontainers.image.title="peage" \
   org.opencontainers.image.source="https://github.com/f-bn/peage" \
-  org.opencontainers.image.version="0.1.0" \
+  org.opencontainers.image.version="0.2.0" \
   org.opencontainers.image.description="Simple Docker API socket filtering reverse proxy" \
   org.opencontainers.image.licenses="BSD-3-Clause" \
   org.opencontainers.image.authors="Florian Bobin <contact@fbobin.me>"
