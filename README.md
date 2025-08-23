@@ -44,7 +44,10 @@ docker run -d --name traefik \
 # Start peage
 # --net=container:peage is like running a pod, this allows the revese proxy
 # to be only exposed in the Traefik container
-docker run -d --name peage --net=container:traefik -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/f-bn/peage:0.1.0
+docker run -d --name peage \
+  --net=container:traefik \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  ghcr.io/f-bn/peage:0.1.0
 
 # Run a demo container
 docker run -d --name demo \
