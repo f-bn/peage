@@ -42,10 +42,8 @@ func init() {
 
 func checkDockerSocketPath() error {
 	if _, err := os.Stat(socketPath); err != nil {
-		logger.Error("Docker API UNIX socket not found, is Docker running?", "error", err)
 		return err
 	}
-	logger.Info("Docker API UNIX socket found", "path", socketPath)
 	return nil
 }
 
@@ -114,11 +112,14 @@ func main() {
 	logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: logLevel,
 	}))
+	logger.Info("Logger initialized", "level", logLevel)
 
 	// Preflight checks
 	if err := checkDockerSocketPath(); err != nil {
+		logger.Error("Docker API UNIX socket not found, is Docker running?", "error", err)
 		os.Exit(1)
 	}
+	logger.Info("Docker API UNIX socket found", "path", socketPath)
 
 	// Create the reverse proxy
 	proxy := NewDockerProxy()
