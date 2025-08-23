@@ -5,8 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'peage/**'
-      - '!peage/README.md'
+      - '**'
+      - '!README.md'
+      - '!.gitignore'
+      - '!LICENSE'
       - '.github/workflows/build-image.yml'
   workflow_dispatch:
 jobs:
