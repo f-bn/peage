@@ -11,10 +11,17 @@ import (
 	"regexp"
 )
 
+// Logging
+var (
+	logger   *slog.Logger
+	logLevel slog.Level
+)
+
 // Flags
 var (
 	listenAddress string
 	socketPath    string
+	verbose       bool
 )
 
 var allowedPaths = []string{
@@ -30,6 +37,7 @@ var allowedPaths = []string{
 func init() {
 	flag.StringVar(&listenAddress, "listen-addr", "localhost:2375", "Listen address for the Peage HTTP server")
 	flag.StringVar(&socketPath, "socket", "/var/run/docker.sock", "Path to the Docker API UNIX socket")
+	flag.BoolVar(&verbose, "verbose", false, "Enable verbose logging of requests")
 }
 
 func isAllowedPath(path string) bool {
@@ -69,19 +77,19 @@ func proxyHandler(proxy *httputil.ReverseProxy) http.HandlerFunc {
 
 		// Only allows GET method
 		if r.Method != http.MethodGet {
-			slog.Info("Blocked invalid request: non-allowed method", "method", r.Method, "path", r.URL.Path, "client", userAgent)
+			logger.Debug("Blocked invalid request: non-allowed method", "method", r.Method, "path", r.URL.Path, "client", userAgent)
 			http.Error(w, "Invalid request: method not allowed (supported method: GET)", http.StatusMethodNotAllowed)
 			return
 		}
 
 		// Check if the path is allowed
 		if !isAllowedPath(r.URL.Path) {
-			slog.Info("Blocked invalid request: non-allowed path", "method", r.Method, "path", r.URL.Path, "client", userAgent)
+			logger.Debug("Blocked invalid request: non-allowed path", "method", r.Method, "path", r.URL.Path, "client", userAgent)
 			http.Error(w, "Invalid request: path not allowed", http.StatusForbidden)
 			return
 		}
 
-		slog.Info("Forwarded valid request", "method", r.Method, "path", r.URL.Path, "client", userAgent)
+		logger.Debug("Forwarded valid request", "method", r.Method, "path", r.URL.Path, "client", userAgent)
 		proxy.ServeHTTP(w, r)
 	}
 }
@@ -90,12 +98,20 @@ func main() {
 	// Flags parsing
 	flag.Parse()
 
+	// Logging
+	if verbose {
+		logLevel = slog.LevelDebug
+	}
+	logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: logLevel,
+	}))
+
 	// Preflight checks
 	if _, err := os.Stat(socketPath); err != nil {
-		slog.Error("Docker API UNIX socket not found, is Docker running?", "error", err)
+		logger.Error("Docker API UNIX socket not found, is Docker running?", "error", err)
 		os.Exit(1)
 	}
-	slog.Info("Docker API UNIX socket found", "path", socketPath)
+	logger.Info("Docker API UNIX socket found", "path", socketPath)
 
 	// Create the reverse proxy
 	proxy := NewDockerProxy()
@@ -103,9 +119,9 @@ func main() {
 	// Register proxy handler
 	http.HandleFunc("/", proxyHandler(proxy))
 
-	slog.Info("Starting Peage server", "address", listenAddress)
+	logger.Info("Starting Peage server", "address", listenAddress)
 	if err := http.ListenAndServe(listenAddress, nil); err != nil {
-		slog.Error("Failed to start server", "error", err)
+		logger.Error("Failed to start server", "error", err)
 		os.Exit(1)
 	}
 }
