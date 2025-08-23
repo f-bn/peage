@@ -59,3 +59,7 @@ docker run -d --name demo \
 curl http://demo.example.local
 ...Welcome to nginx!...
 ```
+
+# Compatibility
+
+Peage is compatible with any software implementing the Docker API spec. I use it personally in front of the Podman API (through the Docker-compatible API endpoint).
