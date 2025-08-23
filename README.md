@@ -1,4 +1,4 @@
-# Overview
+## Overview
 
 :warning: **This is an early work and my first Go project, issues can arise** :warning:
 
@@ -18,7 +18,7 @@ Peage only allows calls using the `GET` method on the following hardcoded paths:
 
 This allows some softwares such as Traefik or Prometheus to use their built-in service discovery mechanisms a bit more safely by running in non-privileged mode (i.e no need to bind-mount Docker/Podman socket into the container).
 
-# Usage
+## Usage
 
 The easiest way to use Peage is to use the container image:
 
@@ -60,6 +60,6 @@ curl http://demo.example.local
 ...Welcome to nginx!...
 ```
 
-# Compatibility
+## Compatibility
 
 Peage is compatible with any software implementing the Docker API spec. I use it personally in front of the Podman API (through the Docker-compatible API endpoint).
