@@ -41,5 +41,5 @@ jobs:
           build-args: |
             VERSION=${{ matrix.version }}
           tags: |
-            ghcr.io/f-bn/coredns:${{ matrix.version }}
+            ghcr.io/f-bn/peage:${{ matrix.version }}
             ghcr.io/f-bn/peage:latest
