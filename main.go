@@ -19,12 +19,13 @@ var (
 
 // Flags
 var (
-	listenAddress string
-	socketPath    string
-	verbose       bool
+	listenAddress   string
+	socketPath      string
+	containerEngine string
+	verbose         bool
 )
 
-var allowedPaths = []string{
+var dockerAllowedPaths = []string{
 	"^/containers/json$",
 	"^/containers/[^/]+/json$",
 	"^/events$",
@@ -36,27 +37,70 @@ var allowedPaths = []string{
 	"^/_ping$",
 }
 
+var podmanAllowedPaths = []string{
+	"^(/libpod)?/containers/json$",
+	"^(/libpod)?/containers/[^/]+/(json|changes|exists)$",
+	"^(/libpod)?/events$",
+	"^(/libpod)?/images/json$",
+	"^(/libpod)?/images/[^/]+/(json|exists)$",
+	"^(/libpod)?/info$",
+	"^(/libpod)?/networks/json$",
+	"^(/libpod)?/networks/[^/]+/(json|exists)$",
+	"^(/libpod)?/pods/json$",
+	"^(/libpod)?/pods/[^/]+/(json|exists)$",
+	"^(/libpod)?/_ping$",
+	"^(/libpod)?/version$",
+	"^(/libpod)?/volumes/json$",
+	"^(/libpod)?/volumes/[^/]+/(json|exists)$",
+}
+
 func init() {
 	flag.StringVar(&listenAddress, "listen-addr", "localhost:2375", "Listen address for the Peage HTTP server")
-	flag.StringVar(&socketPath, "socket", "/var/run/docker.sock", "Path to the Docker API UNIX socket")
+	flag.StringVar(&socketPath, "socket", "/var/run/docker.sock", "Path to the container engine API UNIX socket")
+	flag.StringVar(&containerEngine, "engine", "docker", "Container engine API used ('docker' or 'podman')")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose logging of requests")
 }
 
-func checkDockerSocketPath() error {
-	if _, err := os.Stat(socketPath); err != nil {
+func getEngineVersionPattern(engine string) string {
+	switch engine {
+	case "docker":
+		return `^/v\d+\.\d+`
+	case "podman":
+		return `^/v\d+\.\d+(\.\d+)?`
+	default:
+		return ""
+	}
+}
+
+func getEngineAllowedPaths(engine string) []string {
+	switch engine {
+	case "docker":
+		return dockerAllowedPaths
+	case "podman":
+		return podmanAllowedPaths
+	default:
+		return nil
+	}
+}
+
+func checkSocketPathExists(path string) error {
+	if _, err := os.Stat(path); err != nil {
 		return err
 	}
 	return nil
 }
 
 func isAllowedPath(path string) bool {
-	versionPattern := `^/v\d+\.\d+`
-	if match, _ := regexp.MatchString(versionPattern, path); match {
-		re := regexp.MustCompile(versionPattern)
-		path = re.ReplaceAllString(path, "")
+	versionPattern := getEngineVersionPattern(containerEngine)
+	if versionPattern != "" {
+		if match, _ := regexp.MatchString(versionPattern, path); match {
+			re := regexp.MustCompile(versionPattern)
+			path = re.ReplaceAllString(path, "")
+		}
 	}
 
-	for _, p := range allowedPaths {
+	enginePaths := getEngineAllowedPaths(containerEngine)
+	for _, p := range enginePaths {
 		if match, _ := regexp.MatchString(p, path); match {
 			return true
 		}
@@ -64,7 +108,7 @@ func isAllowedPath(path string) bool {
 	return false
 }
 
-func NewDockerProxy() *httputil.ReverseProxy {
+func NewSocketReverseProxy() *httputil.ReverseProxy {
 	return &httputil.ReverseProxy{
 		Director: func(req *http.Request) {
 			req.URL.Scheme = "http"
@@ -117,14 +161,14 @@ func main() {
 	logger.Info("Logger initialized", "level", logLevel)
 
 	// Preflight checks
-	if err := checkDockerSocketPath(); err != nil {
-		logger.Error("Docker API UNIX socket not found, is Docker running?", "error", err)
+	if err := checkSocketPathExists(socketPath); err != nil {
+		logger.Error("Container engine API socket not found, is Docker/Podman running?", "error", err)
 		os.Exit(1)
 	}
-	logger.Info("Docker API UNIX socket found", "path", socketPath)
+	logger.Info("Container engine API socket found", "engine", containerEngine, "path", socketPath)
 
 	// Create the reverse proxy
-	proxy := NewDockerProxy()
+	proxy := NewSocketReverseProxy()
 
 	// Register proxy handler
 	http.HandleFunc("/", proxyHandler(proxy))
