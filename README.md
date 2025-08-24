@@ -11,6 +11,8 @@ Peage only allows calls using the `GET` method on the following hardcoded paths:
   - `/containers/json`
   - `/containers/*/json`,
   - `/events`
+  - `/images/json`
+  - `/images/*/json`
   - `/info`
   - `/networks`
   - `/version`
