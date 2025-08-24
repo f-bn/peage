@@ -28,6 +28,8 @@ var allowedPaths = []string{
 	"^/containers/json$",
 	"^/containers/[^/]+/json$",
 	"^/events$",
+	"^/images/json$",
+	"^/images/[^/]+/json$",
 	"^/info$",
 	"^/networks$",
 	"^/version$",
