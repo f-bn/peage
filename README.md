@@ -69,5 +69,3 @@ Note: Podman API filtering is only done on libpod 5.0.0+ API paths (Docker-compa
 ## Compatibility
 
 Peage is compatible with any software implementing the Docker or Podman API spec.
-
-I use it personally in front of the Podman API (through the Docker-compatible API endpoint).
