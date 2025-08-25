@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"log/slog"
 	"net"
@@ -59,6 +60,12 @@ func init() {
 	flag.StringVar(&socketPath, "socket", "/var/run/docker.sock", "Path to the container engine API UNIX socket")
 	flag.StringVar(&containerEngine, "engine", "docker", "Container engine API used ('docker' or 'podman')")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose logging of requests")
+}
+
+func returnHTTPError(w http.ResponseWriter, errorCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(errorCode)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
 
 func getEngineVersionPattern(engine string) string {
@@ -131,14 +138,14 @@ func proxyHandler(proxy *httputil.ReverseProxy) http.HandlerFunc {
 		// Only allows GET method
 		if r.Method != http.MethodGet {
 			logger.Debug("Blocked invalid request: non-allowed method", "method", r.Method, "path", r.URL.Path, "client", userAgent)
-			http.Error(w, "Invalid request: method not allowed (supported method: GET)", http.StatusMethodNotAllowed)
+			returnHTTPError(w, http.StatusMethodNotAllowed, "Method not allowed (supported method: GET)")
 			return
 		}
 
 		// Check if the path is allowed
 		if !isAllowedPath(r.URL.Path) {
 			logger.Debug("Blocked invalid request: non-allowed path", "method", r.Method, "path", r.URL.Path, "client", userAgent)
-			http.Error(w, "Invalid request: path not allowed", http.StatusForbidden)
+			returnHTTPError(w, http.StatusForbidden, "Path not allowed")
 			return
 		}
 
