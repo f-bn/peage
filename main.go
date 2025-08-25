@@ -139,10 +139,10 @@ func proxyHandler(proxy *httputil.ReverseProxy) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userAgent := r.UserAgent()
 
-		// Only allows GET method
-		if r.Method != http.MethodGet {
+		// Only allows GET or HEAD method
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
 			logger.Debug("Blocked invalid request: non-allowed method", "method", r.Method, "path", r.URL.Path, "client", userAgent)
-			returnHTTPError(w, http.StatusMethodNotAllowed, "Method not allowed (supported method: GET)")
+			returnHTTPError(w, http.StatusMethodNotAllowed, "Method not allowed (supported methods: GET, HEAD)")
 			return
 		}
 
