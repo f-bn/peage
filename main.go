@@ -12,7 +12,12 @@ import (
 	"regexp"
 )
 
-var version string = "0.4.0"
+// Version
+var (
+	version    = "dev"
+	commitHash = "unknown"
+	buildDate  = "unknown"
+)
 
 // Logging
 var (
@@ -169,7 +174,7 @@ func main() {
 	logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: logLevel,
 	}))
-	logger.Info("Logger initialized", "level", logLevel)
+	logger.Info("Starting Peage", "version", version, "commit", commitHash, "buildDate", buildDate)
 
 	// Preflight checks
 	if err := checkSocketPathExists(socketPath); err != nil {
@@ -184,7 +189,7 @@ func main() {
 	// Register proxy handler
 	http.HandleFunc("/", proxyHandler(proxy))
 
-	logger.Info("Starting Peage server", "version", version, "address", listenAddress)
+	logger.Info("Starting reverse proxy", "address", listenAddress)
 	if err := http.ListenAndServe(listenAddress, nil); err != nil {
 		logger.Error("Failed to start server", "error", err)
 		os.Exit(1)
