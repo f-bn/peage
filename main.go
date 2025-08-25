@@ -12,6 +12,8 @@ import (
 	"regexp"
 )
 
+var version string = "0.4.0"
+
 // Logging
 var (
 	logger   *slog.Logger
@@ -180,7 +182,7 @@ func main() {
 	// Register proxy handler
 	http.HandleFunc("/", proxyHandler(proxy))
 
-	logger.Info("Starting Peage server", "address", listenAddress)
+	logger.Info("Starting Peage server", "version", version, "address", listenAddress)
 	if err := http.ListenAndServe(listenAddress, nil); err != nil {
 		logger.Error("Failed to start server", "error", err)
 		os.Exit(1)
