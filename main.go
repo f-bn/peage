@@ -38,20 +38,20 @@ var dockerAllowedPaths = []string{
 }
 
 var podmanAllowedPaths = []string{
-	"^(/libpod)?/containers/json$",
-	"^(/libpod)?/containers/[^/]+/(json|changes|exists)$",
-	"^(/libpod)?/events$",
-	"^(/libpod)?/images/json$",
-	"^(/libpod)?/images/[^/]+/(json|exists)$",
-	"^(/libpod)?/info$",
-	"^(/libpod)?/networks/json$",
-	"^(/libpod)?/networks/[^/]+/(json|exists)$",
-	"^(/libpod)?/pods/json$",
-	"^(/libpod)?/pods/[^/]+/(json|exists)$",
-	"^(/libpod)?/_ping$",
-	"^(/libpod)?/version$",
-	"^(/libpod)?/volumes/json$",
-	"^(/libpod)?/volumes/[^/]+/(json|exists)$",
+	"^/libpod/containers/json$",
+	"^/libpod/containers/[^/]+/(json|changes|exists)$",
+	"^/libpod/events$",
+	"^/libpod/images/json$",
+	"^/libpod/images/[^/]+/(json|exists)$",
+	"^/libpod/info$",
+	"^/libpod/networks/json$",
+	"^/libpod/networks/[^/]+/(json|exists)$",
+	"^/libpod/pods/json$",
+	"^/libpod/pods/[^/]+/(json|exists)$",
+	"^/libpod/_ping$",
+	"^/libpod/version$",
+	"^/libpod/volumes/json$",
+	"^/libpod/volumes/[^/]+/(json|exists)$",
 }
 
 func init() {
