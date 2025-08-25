@@ -2,66 +2,70 @@
 
 :warning: **This is an early work and my first Go project, issues can arise** :warning:
 
-Peage is a small program written in Go that filters calls to the Docker API when the UNIX socket is used.
+Peage is a small program written in Go that filters calls to the Docker or Podman API when the UNIX socket is used.
 
-The goal of this software is to remain as simple as possible by not covering all possible use cases for a filtering reverse proxy (prefer alternatives if needed).
+This allows some softwares such as Traefik or Prometheus to use their built-in service discovery mechanisms a bit more safely by running in non-privileged mode (i.e removing the need of mounting the Docker/Podman socket into the container and therefore running as root).
 
-Peage only allows calls using the `GET` method on the following hardcoded paths:
-
-  - `/containers/json`
-  - `/containers/*/json`,
-  - `/events`
-  - `/images/json`
-  - `/images/*/json`
-  - `/info`
-  - `/networks`
-  - `/version`
-  - `/_ping`
-
-This allows some softwares such as Traefik or Prometheus to use their built-in service discovery mechanisms a bit more safely by running in non-privileged mode (i.e no need to bind-mount Docker/Podman socket into the container).
+The goal of this software is to remain as simple as possible by not covering all possible use cases for a filtering reverse proxy (prefer alternative solutions if needed).
 
 ## Usage
+
+```
+  -engine string
+        Container engine API used for filtering (must be 'docker' or 'podman') (default "docker")
+  -listen-addr string
+        Listen address for the Peage reverse proxy server (default "localhost:2375")
+  -socket string
+        Path to the container engine API UNIX socket (default "/var/run/docker.sock")
+  -verbose
+        Enable verbose logging of requests
+```
 
 The easiest way to use Peage is to use the container image:
 
 ```shell
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/f-bn/peage:0.1.0
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/f-bn/peage:0.4.0 [flags]
 ```
 
-If you want to use it with Traefik for example:
+### Allowed endpoints
 
-```shell
-# Start Traefik
-docker run -d --name traefik \
-  -p 80:80 \
-  -p 443:443 \
-  ghcr.io/f-bn/traefik:3.5.0 traefik \
-    --log.level=DEBUG \
-    --entrypoints.web.address=:80 \
-    --entrypoints.websecure.address=:443 \
-    --providers.docker \
-    --providers.docker.endpoint=http://localhost:2375 \
-    --providers.docker.exposedbydefault=false
+Peage only allows calls using the `GET` or `HEAD` method on specific **hardcoded** paths depending of the choosen engine:
 
-# Start peage
-# --net=container:peage is like running a pod, this allows the revese proxy
-# to be only exposed in the Traefik container
-docker run -d --name peage \
-  --net=container:traefik \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  ghcr.io/f-bn/peage:0.1.0
+**Docker**
 
-# Run a demo container
-docker run -d --name demo \
-  --label "traefik.enable=true" \
-  --label "traefik.http.routers.demo.rule=Host(\`demo.example.local\`)"
-  docker.io/nginx:latest
+  - `/containers/json`
+	- `/containers/*/json`
+	- `/events`
+	- `/images/json`
+	- `/images/[^/]+/json`
+	- `/info`
+	- `/networks`
+	- `/version`
+	- `/_ping`
 
-# And voilà !
-curl http://demo.example.local
-...Welcome to nginx!...
-```
+**Podman**
+
+  - `/libpod/containers/json`
+  - `/libpod/containers/stats`
+  - `/libpod/containers/*/(json|changes|exists|stats)`
+  - `/libpod/events`
+  - `/libpod/images/json`
+  - `/libpod/images/*/(json|exists)`
+  - `/libpod/info`
+  - `/libpod/networks/json`
+  - `/libpod/networks/*/(json|exists)`
+  - `/libpod/pods/json`
+  - `/libpod/pods/stats`
+  - `/libpod/pods/*/(json|exists)`
+  - `/libpod/_ping`
+  - `/libpod/version`
+  - `/libpod/volumes/json`
+  - `/libpod/volumes/*/(json|exists)`
+
+Note: Podman API filtering is only done on libpod 5.0.0+ API paths (Docker-compatible API paths are not allowed, use the `docker` filtering mode for this)
 
 ## Compatibility
 
-Peage is compatible with any software implementing the Docker API spec. I use it personally in front of the Podman API (through the Docker-compatible API endpoint).
+Peage is compatible with any software implementing the Docker or Pdoamn API spec.
+
+I use it personally in front of the Podman API (through the Docker-compatible API endpoint).
