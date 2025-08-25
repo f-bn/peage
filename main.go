@@ -42,6 +42,8 @@ var dockerAllowedPaths = []string{
 	"^/info$",
 	"^/networks$",
 	"^/version$",
+	"^/volumes$",
+	"^/volumes/[^/]+$",
 	"^/_ping$",
 }
 
