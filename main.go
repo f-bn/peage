@@ -198,6 +198,7 @@ func main() {
 		logger.Error("Preflight checks failed", "error", err)
 		os.Exit(1)
 	}
+	logger.Info("Preflight checks passed")
 	logger.Info("Container engine API socket found", "engine", containerEngine, "path", socketPath)
 
 	// Create the reverse proxy
