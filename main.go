@@ -106,6 +106,10 @@ func checkSocketPathExists(path string) error {
 	return nil
 }
 
+func isValidContainerEngine(engine string) bool {
+	return engine == "docker" || engine == "podman"
+}
+
 func isAllowedPath(path string) bool {
 	versionPattern := getEngineVersionPattern(containerEngine)
 	if versionPattern != "" {
@@ -177,6 +181,10 @@ func main() {
 	logger.Info("Starting Peage", "version", version, "commit", commitHash, "buildDate", buildDate)
 
 	// Preflight checks
+	if !isValidContainerEngine(containerEngine) {
+		logger.Error("Unsupported container engine, must be 'docker' or 'podman'", "engine", containerEngine)
+		os.Exit(1)
+	}
 	if err := checkSocketPathExists(socketPath); err != nil {
 		logger.Error("Container engine API socket not found, is Docker/Podman running?", "error", err)
 		os.Exit(1)
