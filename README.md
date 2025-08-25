@@ -37,10 +37,12 @@ Peage only allows calls using the `GET` or `HEAD` method on specific **hardcoded
   - `/containers/*/json`
   - `/events`
   - `/images/json`
-  - `/images/[^/]+/json`
+  - `/images/*/json`
   - `/info`
   - `/networks`
   - `/version`
+  - `/volumes`
+  - `/volumes/<name>`
   - `/_ping`
 
 **Podman**
