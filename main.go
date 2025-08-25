@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
@@ -71,6 +72,16 @@ func init() {
 	flag.StringVar(&socketPath, "socket", "/var/run/docker.sock", "Path to the container engine API UNIX socket")
 	flag.StringVar(&containerEngine, "engine", "docker", "Container engine API used for filtering (must be 'docker' or 'podman')")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose logging of requests")
+}
+
+func runPreflightChecks() error {
+	if !isValidContainerEngine(containerEngine) {
+		return fmt.Errorf("invalid container engine '%s' (must be 'docker' or 'podman')", containerEngine)
+	}
+	if err := checkSocketPathExists(socketPath); err != nil {
+		return fmt.Errorf("socket path check failed: %w", err)
+	}
+	return nil
 }
 
 func returnHTTPError(w http.ResponseWriter, errorCode int, message string) {
@@ -183,12 +194,8 @@ func main() {
 	logger.Info("Starting Peage", "version", version, "commit", commitHash, "buildDate", buildDate)
 
 	// Preflight checks
-	if !isValidContainerEngine(containerEngine) {
-		logger.Error("Unsupported container engine, must be 'docker' or 'podman'", "engine", containerEngine)
-		os.Exit(1)
-	}
-	if err := checkSocketPathExists(socketPath); err != nil {
-		logger.Error("Container engine API socket not found, is Docker/Podman running?", "error", err)
+	if err := runPreflightChecks(); err != nil {
+		logger.Error("Preflight checks failed", "error", err)
 		os.Exit(1)
 	}
 	logger.Info("Container engine API socket found", "engine", containerEngine, "path", socketPath)
