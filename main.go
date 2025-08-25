@@ -42,7 +42,8 @@ var dockerAllowedPaths = []string{
 
 var podmanAllowedPaths = []string{
 	"^/libpod/containers/json$",
-	"^/libpod/containers/[^/]+/(json|changes|exists)$",
+	"^/libpod/containers/stats$",
+	"^/libpod/containers/[^/]+/(json|changes|exists|stats)$",
 	"^/libpod/events$",
 	"^/libpod/images/json$",
 	"^/libpod/images/[^/]+/(json|exists)$",
@@ -50,6 +51,7 @@ var podmanAllowedPaths = []string{
 	"^/libpod/networks/json$",
 	"^/libpod/networks/[^/]+/(json|exists)$",
 	"^/libpod/pods/json$",
+	"^/libpod/pods/stats$",
 	"^/libpod/pods/[^/]+/(json|exists)$",
 	"^/libpod/_ping$",
 	"^/libpod/version$",
