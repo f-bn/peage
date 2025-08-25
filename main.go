@@ -65,9 +65,9 @@ var podmanAllowedPaths = []string{
 }
 
 func init() {
-	flag.StringVar(&listenAddress, "listen-addr", "localhost:2375", "Listen address for the Peage HTTP server")
+	flag.StringVar(&listenAddress, "listen-addr", "localhost:2375", "Listen address for the Peage reverse proxy server")
 	flag.StringVar(&socketPath, "socket", "/var/run/docker.sock", "Path to the container engine API UNIX socket")
-	flag.StringVar(&containerEngine, "engine", "docker", "Container engine API used ('docker' or 'podman')")
+	flag.StringVar(&containerEngine, "engine", "docker", "Container engine API used for filtering (must be 'docker' or 'podman')")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose logging of requests")
 }
 
