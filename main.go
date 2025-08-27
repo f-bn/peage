@@ -11,6 +11,7 @@ import (
 	"net/http/httputil"
 	"os"
 	"regexp"
+	"slices"
 )
 
 // Version
@@ -36,7 +37,7 @@ var (
 
 var dockerAllowedPaths = []string{
 	"^/containers/json$",
-	"^/containers/[^/]+/json$",
+	"^/containers/[^/]+/(json|stats)$",
 	"^/events$",
 	"^/images/json$",
 	"^/images/[^/]+/json$",
@@ -70,13 +71,13 @@ var podmanAllowedPaths = []string{
 func init() {
 	flag.StringVar(&listenAddress, "listen-addr", "localhost:2375", "Listen address for the Peage reverse proxy server")
 	flag.StringVar(&socketPath, "socket", "/var/run/docker.sock", "Path to the container engine API UNIX socket")
-	flag.StringVar(&containerEngine, "engine", "docker", "Container engine API used for filtering (must be 'docker' or 'podman')")
+	flag.StringVar(&containerEngine, "engine", "docker", "Container engine API used for filtering (must be 'docker', 'podman', or 'podman-compat')")
 	flag.BoolVar(&verbose, "verbose", false, "Enable verbose logging of requests")
 }
 
 func runPreflightChecks() error {
 	if !isValidContainerEngine(containerEngine) {
-		return fmt.Errorf("invalid container engine '%s' (must be 'docker' or 'podman')", containerEngine)
+		return fmt.Errorf("invalid container engine '%s' (must be 'docker', 'podman', or 'podman-compat')", containerEngine)
 	}
 	if err := checkSocketPathExists(socketPath); err != nil {
 		return fmt.Errorf("socket path check failed: %w", err)
@@ -94,7 +95,7 @@ func getEngineVersionPattern(engine string) string {
 	switch engine {
 	case "docker":
 		return `^/v\d+\.\d+`
-	case "podman":
+	case "podman", "podman-compat":
 		return `^/v\d+\.\d+(\.\d+)?`
 	default:
 		return ""
@@ -107,6 +108,8 @@ func getEngineAllowedPaths(engine string) []string {
 		return dockerAllowedPaths
 	case "podman":
 		return podmanAllowedPaths
+	case "podman-compat":
+		return slices.Concat(dockerAllowedPaths, podmanAllowedPaths)
 	default:
 		return nil
 	}
@@ -120,7 +123,12 @@ func checkSocketPathExists(path string) error {
 }
 
 func isValidContainerEngine(engine string) bool {
-	return engine == "docker" || engine == "podman"
+	validEngines := []string{
+		"docker",
+		"podman",
+		"podman-compat",
+	}
+	return slices.Contains(validEngines, engine)
 }
 
 func isAllowedPath(path string) bool {
