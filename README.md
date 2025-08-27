@@ -78,7 +78,7 @@ Peage only allows calls using the `GET` or `HEAD` method on specific **hardcoded
 **Docker (docker)**
 
   - `/containers/json`
-  - `/containers/*/json`
+  - `/containers/*/(json|stats)`
   - `/events`
   - `/images/json`
   - `/images/*/json`
