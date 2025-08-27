@@ -37,7 +37,7 @@ var (
 
 var dockerAllowedPaths = []string{
 	"^/containers/json$",
-	"^/containers/[^/]+/json$",
+	"^/containers/[^/]+/(json|stats)$",
 	"^/events$",
 	"^/images/json$",
 	"^/images/[^/]+/json$",
