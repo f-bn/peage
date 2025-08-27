@@ -23,7 +23,7 @@ The goal of this software is to remain as simple as possible by not covering all
 
 The easiest way to use Peage is to use the container image:
 
-```shell
+```console
 docker run -d --name peage \
   -p 2375:2375 -v /var/run/docker.sock:/var/run/docker.sock:ro \
   ghcr.io/f-bn/peage:0.5.0 \
@@ -33,14 +33,14 @@ docker run -d --name peage \
 
 Then, you can send your request (i.e with cURL):
 
-```shell
+```console
 $ curl http://localhost:2375/v1.47/_ping
 OK
 ```
 
 The request has been forwarded successfuly as it match one the allowed endpoints:
 
-```shell
+```console
 $ docker logs peage
 time=2025-08-27T15:24:13.899Z level=INFO msg="Starting Peage" version=0.5.0 commit=b19ae059 buildDate=2025-08-27_03:19:57PM
 time=2025-08-27T15:24:13.899Z level=INFO msg="Preflight checks passed"
@@ -51,8 +51,7 @@ time=2025-08-27T15:24:21.914Z level=DEBUG msg="Forwarded valid request" method=G
 
 Same goes for Podman API, you need to set some flags to correctly target the Podman API socket:
 
-```shell
-# Run the container
+```console
 $ podman run -d --name peage \
   -p 2375:2375 -v /run/podman/podman.sock:/run/podman/podman.sock:ro \
   ghcr.io/f-bn/peage:0.5.0 \
@@ -61,7 +60,6 @@ $ podman run -d --name peage \
     --socket=/run/podman/podman.sock \
     --verbose
 
-# Test a simple request
 $ curl http://localhost:2375/v5.5.2/libpod/_ping
 OK
 
