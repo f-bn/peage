@@ -1,6 +1,6 @@
 FROM docker.io/golang:1.24.6 AS build
 
-ARG VERSION="0.4.0"
+ARG VERSION="0.5.0"
 
 WORKDIR /build
 
@@ -14,7 +14,7 @@ RUN go build -ldflags="-s -w \
 
 FROM cgr.dev/chainguard/wolfi-base:latest
 
-ARG VERSION="0.4.0"
+ARG VERSION="0.5.0"
 
 COPY --from=build --chown=0:0 --chmod=0755 \
   /build/peage /usr/bin/peage
