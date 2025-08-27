@@ -24,7 +24,7 @@ The goal of this software is to remain as simple as possible by not covering all
 The easiest way to use Peage is to use the container image:
 
 ```console
-docker run -d --name peage \
+$ docker run -d --name peage \
   -p 2375:2375 -v /var/run/docker.sock:/var/run/docker.sock:ro \
   ghcr.io/f-bn/peage:0.5.0 \
     --listen-addr=:2375\
