@@ -13,9 +13,6 @@ Moreover, Peage **does not** aim to implement missing features in the Docker/Pod
 ## Usage
 
 ```
-Simple Docker/Podman API socket filtering reverse proxy written in Go
-
-Usage: peage [flags]
   -engine string
     	Container engine API used for filtering (values: 'docker', 'podman', or 'podman-compat') (default "docker")
   -listen-addr string
@@ -36,8 +33,8 @@ $ docker run -d --name peage \
     -verbose
 ```
 
-> [!NOTE]
-> On hosts with SELinux enabled, please disable label separation for the container otherwise Peage won't be able to talk to the API socket:
+> [!WARNING]
+> On hosts with SELinux enabled, you need to disable label separation for the container otherwise Peage won't be able to forward requests to the API socket:
 > * Docker: `--security-opt=label=disable`
 > * Podman: `--security-opt=label=disabled`
 
