@@ -20,7 +20,15 @@ var (
 	buildDate  = "unknown"
 )
 
+var logLevel slog.LevelVar
+
 func main() {
+	// Logging
+	logLevel.Set(slog.LevelInfo)
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: &logLevel,
+	})))
+
 	// Parse configuration
 	cfg, err := config.Parse()
 	if err != nil {
@@ -28,14 +36,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Logging
-	level := slog.LevelInfo
 	if cfg.Verbose {
-		level = slog.LevelDebug
+		logLevel.Set(slog.LevelDebug)
 	}
-	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: level,
-	})))
 
 	// Create and start the listener server
 	slog.Info("Starting Peage", "version", version, "commit", commitHash, "buildDate", buildDate)
