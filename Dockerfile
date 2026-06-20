@@ -1,20 +1,20 @@
-FROM docker.io/golang:1.24.6 AS build
+FROM docker.io/golang:1.26.4 AS build
 
-ARG VERSION="0.5.0"
+ARG VERSION="0.6.0"
 
 WORKDIR /build
 
-COPY . .
+ADD . .
 
 RUN go build -ldflags="-s -w \
     -X main.version=${VERSION} \
     -X main.commitHash=$(git rev-parse HEAD | cut -c1-8) \
     -X main.buildDate=$(date -u '+%Y-%m-%d_%I:%M:%S%p')" \
-  -o peage
+  -o peage ./cmd/peage/
 
 FROM cgr.dev/chainguard/wolfi-base:latest
 
-ARG VERSION="0.5.0"
+ARG VERSION="0.6.0"
 
 COPY --from=build --chown=0:0 --chmod=0755 \
   /build/peage /usr/bin/peage

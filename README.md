@@ -1,35 +1,45 @@
 ## Overview
 
-:warning: **This is an early work and my first Go project, issues can arise** :warning:
+Peage is a small program written in Go that filters calls to the Docker and Podman API when the UNIX socket is used.
 
-Peage is a small program written in Go that filters calls to the Docker or Podman API when the UNIX socket is used.
+This allows some softwares such as Traefik or Prometheus to use their built-in service discovery mechanisms based on those API a bit more safely by running in non-privileged mode. This remove the need of mounting the Docker/Podman socket into those containers and therefore to run them as root.
 
-This allows some softwares such as Traefik or Prometheus to use their built-in service discovery mechanisms a bit more safely by running in non-privileged mode (i.e removing the need of mounting the Docker/Podman socket into the container and therefore running as root).
+### Note regarding security
 
-The goal of this software is to remain as simple as possible by not covering all possible use cases for a filtering reverse proxy (prefer alternative solutions if needed).
+Even if this tool allows to avoid running some software that use the Docker/Podman API in non-privileged mode, this does **not** replace good security practices of deployment. It is still recommended to apply the principle of least privilege, keep your software up to date, and follow general container security guidelines.
+
+Moreover, Peage **does not** aim to implement missing features in the Docker/Podman APIs such as authentication and authorization on top of them. It's sole purpose is to restrict which endpoints of those API are accessible, mostly for service discovery purposes (Kubernetes does a much better job on this part if that's needed, but this is not scope here).
 
 ## Usage
 
 ```
+Simple Docker/Podman API socket filtering reverse proxy written in Go
+
+Usage: peage [flags]
   -engine string
-        Container engine API used for filtering (must be 'docker', 'podman' or 'podman-compat') (default "docker")
+    	Container engine API used for filtering (values: 'docker', 'podman', or 'podman-compat') (default "docker")
   -listen-addr string
-        Listen address for the Peage reverse proxy server (default "localhost:2375")
+    	Listen address for the Peage reverse proxy server (default "localhost:2375")
   -socket string
-        Path to the container engine API UNIX socket (default "/var/run/docker.sock")
+    	Path to the container engine API UNIX socket (default "/var/run/docker.sock")
   -verbose
-        Enable verbose logging of requests
+    	Enable verbose logging of requests
 ```
 
 The easiest way to use Peage is to use the container image:
 
 ```console
 $ docker run -d --name peage \
-  -p 2375:2375 -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  ghcr.io/f-bn/peage:0.5.0 \
-    --listen-addr=:2375\
-    --verbose
+  -p 127.0.0.1:2375:2375 -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  ghcr.io/f-bn/peage:0.6.0 \
+    -listen-addr=:2375 \
+    -verbose
 ```
+
+> [!NOTE]
+> On hosts with SELinux enabled, please disable label separation for the container otherwise Peage won't be able to talk to the API socket:
+> * Docker: `--security-opt=label=disable`
+> * Podman: `--security-opt=label=disabled`
 
 Then, you can send your request (i.e with cURL):
 
@@ -54,11 +64,11 @@ Same goes for Podman API, you need to set some flags to correctly target the Pod
 ```console
 $ podman run -d --name peage \
   -p 2375:2375 -v /run/podman/podman.sock:/run/podman/podman.sock:ro \
-  ghcr.io/f-bn/peage:0.5.0 \
-    --listen-addr=:2375 \
-    --engine=podman \
-    --socket=/run/podman/podman.sock \
-    --verbose
+  ghcr.io/f-bn/peage:0.6.0 \
+    -listen-addr=:2375 \
+    -engine=podman \
+    -socket=/run/podman/podman.sock \
+    -verbose
 
 $ curl http://localhost:2375/v5.5.2/libpod/_ping
 OK

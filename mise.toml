@@ -1,0 +1,26 @@
+[tools]
+go = "1.26.4"
+
+[tasks.build]
+description = "Build binary"
+run = "go build -o dist/peage ./cmd/peage/"
+
+[tasks.docker-build]
+description = "Build OCI image"
+run = "docker build -t peage:dev -f Dockerfile ."
+
+[tasks.start]
+description = "Build and run binary"
+run = "go run ./cmd/peage/ -verbose"
+
+[tasks.start-docker]
+description = "Run Peage in Docker container"
+run = '''
+docker run -ti --rm \
+  --security-opt label=disable \
+  --name peage-dev \
+  -p 2375:2375 \
+  -v /var/run/docker.sock:/var/run/docker.sock peage:dev \
+  -listen-addr=:2375 \
+  -verbose
+'''
