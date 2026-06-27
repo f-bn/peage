@@ -41,7 +41,7 @@ $ docker run -d --name peage \
 Then, you can send your request (i.e with cURL):
 
 ```console
-$ curl http://localhost:2375/v1.47/_ping
+$ curl http://localhost:2375/_ping
 OK
 ```
 
@@ -49,11 +49,9 @@ The request has been forwarded successfuly as it match one the allowed endpoints
 
 ```console
 $ docker logs peage
-time=2025-08-27T15:24:13.899Z level=INFO msg="Starting Peage" version=0.5.0 commit=b19ae059 buildDate=2025-08-27_03:19:57PM
-time=2025-08-27T15:24:13.899Z level=INFO msg="Preflight checks passed"
-time=2025-08-27T15:24:13.899Z level=INFO msg="Container engine API socket found" engine=docker path=/var/run/docker.sock
-time=2025-08-27T15:24:13.899Z level=INFO msg="Starting reverse proxy" address=:2375
-time=2025-08-27T15:24:21.914Z level=DEBUG msg="Forwarded valid request" method=GET path=/v1.47/_ping client=curl/8.12.1
+time=2026-06-27T16:21:24.721Z level=INFO msg="Starting Peage" version=0.6.0 commit=3de67f4 buildDate=2026-06-27T16:23:34Z
+time=2026-06-27T16:21:24.721Z level=INFO msg="Starting server" address=:2375 socket=/var/run/docker.sock engine=docker
+time=2026-06-27T16:21:35.661Z level=DEBUG msg="Forwarded valid request" method=GET path=/_ping client=curl/8.18.0
 ```
 
 Same goes for Podman API, you need to set some flags to correctly target the Podman API socket:
@@ -71,11 +69,9 @@ $ curl http://localhost:2375/v5.5.2/libpod/_ping
 OK
 
 $ podman logs peage
-time=2025-08-27T15:27:13.341Z level=INFO msg="Starting Peage" version=0.5.0 commit=b19ae059 buildDate=2025-08-27_03:19:57PM
-time=2025-08-27T15:27:13.341Z level=INFO msg="Preflight checks passed"
-time=2025-08-27T15:27:13.341Z level=INFO msg="Container engine API socket found" engine=podman path=/run/podman/podman.sock
-time=2025-08-27T15:27:13.341Z level=INFO msg="Starting reverse proxy" address=:2375
-time=2025-08-27T15:27:35.688Z level=DEBUG msg="Forwarded valid request" method=GET path=/v5.5.2/libpod/_ping client=curl/8.12.1
+time=2026-06-27T16:21:24.721Z level=INFO msg="Starting Peage" version=0.6.0 commit=3de67f4 buildDate=2026-06-27T16:23:34Z
+time=2026-06-27T16:21:24.721Z level=INFO msg="Starting server" address=:2375 socket=/run/podman/podman.sock engine=podman
+time=2026-06-27T16:21:35.661Z level=DEBUG msg="Forwarded valid request" method=GET path=/v5.5.2/libpod/_ping client=curl/8.12.1
 ```
 
 ### Allowed endpoints
