@@ -82,16 +82,24 @@ time=2025-08-27T15:27:35.688Z level=DEBUG msg="Forwarded valid request" method=G
 
 Peage only allows calls using the `GET` or `HEAD` method on specific **hardcoded** paths depending of the choosen engine filtering mode:
 
-- [docker](./internal/proxy/filter.go)
-- [podman](./internal/proxy/filter.go)
-- [podman-compat]
+- [docker](./internal/proxy/filter.go#L81)
+- [podman](./internal/proxy/filter.go#L83)
+- [podman-compat](./internal/proxy/filter.go#L85)
 
-**Podman with Docker-compatible endpoints (podman-compat)**
-
-This engine mode enable both Docker and Podman API filtering. This is useful if you want to have a single proxy on top of Podman API to handle both Docker-compatible and dedicated Podman endpoints.
-
-For example, if you have apps that only know about Docker API (i.e Traefik) and some others only about Podman API (i.e Prometheus Podman Exporter), then it is easier to manage with a single proxy instead of having to deploy one for each filtering mode.
+> [!NOTE]
+> This `podman-compat` engine mode enable both Docker and Podman API filtering. This is useful if you want to have a single proxy on top of Podman API to handle both Docker-compatible and dedicated Podman endpoints.
 
 ## Compatibility
 
 Peage is compatible with any software implementing the Docker or Podman API spec.
+
+## Usage of AI disclosure
+
+This project was reworked with the assistance of an AI coding agent as an engineering assistant to:
+
+- Refactor and review Go code.
+- Propose project structure, configurations, and testing improvements.
+- Help debug issues.
+- Generate and maintain documentation.
+
+All AI-generated code was reviewed, tested, and validated by a human developer before being committed. The final decisions, design choices, and code quality remain the sole responsibility of the project maintainer.
