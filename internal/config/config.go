@@ -39,7 +39,7 @@ func Parse() (*Config, error) {
 
 	flag.Parse()
 
-	if err := cfg.Engine.Validate(); err != nil {
+	if err := validateContainerEngine(cfg.Engine); err != nil {
 		return nil, err
 	}
 
@@ -50,8 +50,8 @@ func Parse() (*Config, error) {
 	return cfg, nil
 }
 
-func (e Engine) Validate() error {
-	switch e {
+func validateContainerEngine(engine Engine) error {
+	switch engine {
 	case EngineDocker, EnginePodman, EnginePodmanCompat:
 		return nil
 	default:
