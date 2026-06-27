@@ -29,8 +29,8 @@ The easiest way to use Peage is to use the container image:
 $ docker run -d --name peage \
   -p 127.0.0.1:2375:2375 -v /var/run/docker.sock:/var/run/docker.sock:ro \
   ghcr.io/f-bn/peage:0.6.0 \
-    -listen-addr=:2375 \
-    -verbose
+    --listen-addr=:2375 \
+    --verbose
 ```
 
 > [!WARNING]
@@ -62,10 +62,10 @@ Same goes for Podman API, you need to set some flags to correctly target the Pod
 $ podman run -d --name peage \
   -p 2375:2375 -v /run/podman/podman.sock:/run/podman/podman.sock:ro \
   ghcr.io/f-bn/peage:0.6.0 \
-    -listen-addr=:2375 \
-    -engine=podman \
-    -socket=/run/podman/podman.sock \
-    -verbose
+    --listen-addr=:2375 \
+    --engine=podman \
+    --socket=/run/podman/podman.sock \
+    --verbose
 
 $ curl http://localhost:2375/v5.5.2/libpod/_ping
 OK
@@ -82,38 +82,9 @@ time=2025-08-27T15:27:35.688Z level=DEBUG msg="Forwarded valid request" method=G
 
 Peage only allows calls using the `GET` or `HEAD` method on specific **hardcoded** paths depending of the choosen engine filtering mode:
 
-**Docker (docker)**
-
-  - `/containers/json`
-  - `/containers/*/(json|stats)`
-  - `/events`
-  - `/images/json`
-  - `/images/*/json`
-  - `/info`
-  - `/networks`
-  - `/version`
-  - `/volumes`
-  - `/volumes/<name>`
-  - `/_ping`
-
-**Podman (podman)**
-
-  - `/libpod/containers/json`
-  - `/libpod/containers/stats`
-  - `/libpod/containers/*/(json|changes|exists|stats)`
-  - `/libpod/events`
-  - `/libpod/images/json`
-  - `/libpod/images/*/(json|exists)`
-  - `/libpod/info`
-  - `/libpod/networks/json`
-  - `/libpod/networks/*/(json|exists)`
-  - `/libpod/pods/json`
-  - `/libpod/pods/stats`
-  - `/libpod/pods/*/(json|exists)`
-  - `/libpod/_ping`
-  - `/libpod/version`
-  - `/libpod/volumes/json`
-  - `/libpod/volumes/*/(json|exists)`
+- [docker](./internal/proxy/filter.go)
+- [podman](./internal/proxy/filter.go)
+- [podman-compat]
 
 **Podman with Docker-compatible endpoints (podman-compat)**
 
