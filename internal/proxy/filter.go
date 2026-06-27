@@ -23,6 +23,7 @@ func init() {
 		"^/images/[^/]+/json$",
 		"^/info$",
 		"^/networks$",
+		"^/networks/[^/]+$",
 		"^/version$",
 		"^/volumes$",
 		"^/volumes/[^/]+$",
