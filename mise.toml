@@ -1,0 +1,35 @@
+[tools]
+go = "1.26.4"
+goreleaser = "2.16.0"
+
+[tasks.start]
+description = "Build and run binary"
+run = "go run ./cmd/peage/ --verbose"
+
+[tasks.build]
+description = "Build binary"
+run = "go build -o dist/linux/amd64/peage ./cmd/peage/"
+
+[tasks."docker:build"]
+description = "Build container image"
+run = [
+  { task = "build" },
+  'docker build -t peage:dev -f Dockerfile dist/'
+]
+
+[tasks."docker:run"]
+description = "Run Peage in container"
+run = '''
+docker run -ti --rm \
+    --name=peage-dev \
+    --publish=2375:2375 \
+    --volume=/var/run/docker.sock:/var/run/docker.sock \
+    --security-opt=label=disable \
+  peage:dev \
+    --listen-addr=:2375 \
+    --verbose
+'''
+
+[tasks.clean]
+description = "Cleanup build artefacts"
+run = "rm -rf dist/"
