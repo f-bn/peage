@@ -40,4 +40,12 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: build --snapshot --clean
+          args: release --snapshot --clean --skip=docker
+
+      - name: Upload snapshot artifacts
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: peage-${{ github.sha }}
+          path: |
+            dist/*.tar.gz
+            dist/checksums.txt
