@@ -28,7 +28,7 @@ The easiest way to use Peage is to use the container image:
 ```console
 $ docker run -d --name peage \
   -p 127.0.0.1:2375:2375 -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  ghcr.io/f-bn/peage:0.6.0 \
+  ghcr.io/f-bn/peage:v0.6.0 \
     --listen-addr=:2375 \
     --verbose
 ```
@@ -59,7 +59,7 @@ Same goes for Podman API, you need to set some flags to correctly target the Pod
 ```console
 $ podman run -d --name peage \
   -p 2375:2375 -v /run/podman/podman.sock:/run/podman/podman.sock:ro \
-  ghcr.io/f-bn/peage:0.6.0 \
+  ghcr.io/f-bn/peage:v0.6.0 \
     --listen-addr=:2375 \
     --engine=podman \
     --socket=/run/podman/podman.sock \
